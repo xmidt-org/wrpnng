@@ -10,6 +10,8 @@ import (
 
 	"github.com/xmidt-org/eventor"
 	"github.com/xmidt-org/wrp-go/v3"
+	"github.com/xmidt-org/wrpnng/internal/receiver"
+	"github.com/xmidt-org/wrpnng/internal/sender"
 )
 
 // Client is a WRP <-> nanomsg client.  The client is responsible for sending
@@ -19,13 +21,11 @@ type Client struct {
 	clientURL string
 	serverURL string
 
-	/* TODO
 	rOpts []receiver.Option
 	r     *receiver.Receiver
 
 	sOpts []sender.Option
 	s     *sender.Sender
-	*/
 
 	egress eventor.Eventor[wrp.Modifier]
 }

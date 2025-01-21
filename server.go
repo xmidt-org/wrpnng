@@ -11,7 +11,6 @@ import (
 
 	"github.com/xmidt-org/eventor"
 	"github.com/xmidt-org/wrp-go/v3"
-	"github.com/xmidt-org/wrpnng/internal/filters"
 	"github.com/xmidt-org/wrpnng/internal/processors/stopping"
 	"github.com/xmidt-org/wrpnng/internal/receiver"
 	"github.com/xmidt-org/wrpnng/internal/sender"
@@ -40,10 +39,9 @@ type Server struct {
 
 	senders senderMap
 
-	rxObservers   wrp.Observers
-	txObservers   wrp.Observers
-	ingressChain  stopping.Processors
-	receiverChain stopping.Processors
+	rxObservers  wrp.Observers
+	txObservers  wrp.Observers
+	ingressChain stopping.Processors
 
 	heartbeatInterval time.Duration
 	heartbeatCancel   context.CancelFunc
@@ -59,16 +57,13 @@ var _ wrp.Processor = (*Server)(nil)
 func NewServer(opts ...ServerOption) (*Server, error) {
 	var srv Server
 
-	srv.rOpts = []receiver.Option{
-		receiver.WithModifyWRP(wrp.ProcessorAsModifier(srv.receiverChain)),
-	}
-
 	defaults := []ServerOption{
 		WithHeartbeatInterval(30 * time.Second),
 	}
 
 	vadors := []ServerOption{
 		createReceiver(),
+		createIngressChain(),
 	}
 
 	opts = append(defaults, opts...)
@@ -82,29 +77,10 @@ func NewServer(opts ...ServerOption) (*Server, error) {
 		}
 	}
 
-	// Build these chains after the options have been applied.  The values
-	// in the chains are taken immediately when the chain is created.  If
-	// the options are applied after the chains are created, the chains may
-	// have empty processors.
-
-	srv.receiverChain = stopping.Processors{
-		wrp.ObserverAsProcessor(srv.rxObservers),
-		filters.ErrorOnUnsupportedMsgTypes(),
-		wrp.ProcessorFunc(srv.handleRegisterMsg),
-		filters.ErrorOnLocalMsgTypes(),
-		wrp.ProcessorFunc(srv.egressWRP),
-	}
-
-	srv.ingressChain = stopping.Processors{
-		filters.ErrorOnUnsupportedMsgTypes(),
-		filters.ErrorOnLocalMsgTypes(),
-		wrp.ObserverAsProcessor(srv.txObservers),
-		&srv.senders,
-	}
-
 	return &srv, nil
 }
 
+// Start begins listening for messages.  It is idempotent.
 func (srv *Server) Start() error {
 	srv.lock.Lock()
 	defer srv.lock.Unlock()
@@ -122,6 +98,7 @@ func (srv *Server) Start() error {
 	return srv.r.Listen()
 }
 
+// Stop halts the controller.  It is idempotent.
 func (srv *Server) Stop() error {
 	srv.lock.Lock()
 	defer srv.lock.Unlock()
@@ -140,6 +117,7 @@ func (srv *Server) Stop() error {
 	return err
 }
 
+// ProcessWRP is called when a message should be sent to the network.
 func (srv *Server) ProcessWRP(ctx context.Context, msg wrp.Message) error {
 	return srv.ingressChain.ProcessWRP(ctx, msg)
 }

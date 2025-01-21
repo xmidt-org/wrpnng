@@ -6,6 +6,7 @@ package receiver
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -65,6 +66,7 @@ func (r *Receiver) Listen() error {
 	r.wg.Add(1)
 	go r.wrapper(ctx, sock)
 
+	fmt.Println("Listening...")
 	return nil
 }
 
@@ -134,6 +136,7 @@ func (r *Receiver) receive(ctx context.Context, sock mangos.Socket) error {
 			if err != nil {
 				errChan <- err
 			} else {
+				fmt.Println("got a message")
 				recvChan <- bytes
 			}
 		}()
@@ -150,15 +153,19 @@ func (r *Receiver) receive(ctx context.Context, sock mangos.Socket) error {
 
 		if buf != nil {
 			var msg wrp.Message
+			fmt.Println("decoding message")
 			if err := wrp.NewDecoderBytes(buf, wrp.Msgpack).Decode(&msg); err == nil {
 				// We got a message.  Tell everyone, but we don't care what they
 				// do with it.  Do it in a separate goroutine so we don't block
 				// the receiver.
 				go func() {
+					fmt.Println("sending it to the observers")
 					r.onMsg.Visit(func(m wrp.Modifier) {
 						_, _ = m.ModifyWRP(context.Background(), msg)
 					})
 				}()
+			} else {
+				fmt.Println("failed to decode message")
 			}
 
 			// If we get any error processing the message, we ignore the error

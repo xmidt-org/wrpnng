@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/xmidt-org/wrp-go/v3"
+	"github.com/xmidt-org/wrpnng/internal/filters"
+	"github.com/xmidt-org/wrpnng/internal/processors/stopping"
 	"github.com/xmidt-org/wrpnng/internal/receiver"
 )
 
@@ -18,13 +20,13 @@ type ServerOption interface {
 
 type errServerOptionFunc func(*Server) error
 
-func (f errServerOptionFunc) apply(c *Server) error {
-	return f(c)
+func (f errServerOptionFunc) apply(srv *Server) error {
+	return f(srv)
 }
 
 func serverOptionFunc(f func(*Server)) errServerOptionFunc {
-	return errServerOptionFunc(func(c *Server) error {
-		f(c)
+	return errServerOptionFunc(func(srv *Server) error {
+		f(srv)
 		return nil
 	})
 }
@@ -33,38 +35,38 @@ func serverOptionFunc(f func(*Server)) errServerOptionFunc {
 // The URL should be in the format of "tcp://<ip>:<port>" unless other transports
 // are registered.  This URL represents the rx network side of the controller.
 func RXURL(url string) ServerOption {
-	return serverOptionFunc(func(c *Server) {
-		c.rOpts = append(c.rOpts, receiver.WithURL(url))
+	return serverOptionFunc(func(srv *Server) {
+		srv.rOpts = append(srv.rOpts, receiver.WithURL(url))
 	})
 }
 
 // RXTimeout sets the timeout for receiving messages.
 func RXTimeout(timeout time.Duration) ServerOption {
-	return serverOptionFunc(func(c *Server) {
-		c.rOpts = append(c.rOpts, receiver.WithRecvTimeout(timeout))
+	return serverOptionFunc(func(srv *Server) {
+		srv.rOpts = append(srv.rOpts, receiver.WithRecvTimeout(timeout))
 	})
 }
 
 // WithHeartbeatInterval sets the interval for sending heartbeats.
 func WithHeartbeatInterval(interval time.Duration) ServerOption {
-	return serverOptionFunc(func(c *Server) {
-		c.heartbeatInterval = interval
+	return serverOptionFunc(func(srv *Server) {
+		srv.heartbeatInterval = interval
 	})
 }
 
 // WithRXObserver adds observers to the rx chain.  The rx chain represents the
 // processing of messages received from the network.
 func WithRXObserver(observer wrp.Observer) ServerOption {
-	return serverOptionFunc(func(c *Server) {
-		c.rxObservers = append(c.rxObservers, observer)
+	return serverOptionFunc(func(srv *Server) {
+		srv.rxObservers = append(srv.rxObservers, observer)
 	})
 }
 
 // WithTXObserver adds observers to the tx chain.  The tx chain represents the
 // processing of messages sent to the network.
 func WithTXObserver(observer wrp.Observer) ServerOption {
-	return serverOptionFunc(func(c *Server) {
-		c.txObservers = append(c.txObservers, observer)
+	return serverOptionFunc(func(srv *Server) {
+		srv.txObservers = append(srv.txObservers, observer)
 	})
 }
 
@@ -72,8 +74,8 @@ func WithTXObserver(observer wrp.Observer) ServerOption {
 // of messages leaving the controller.  Return values from the modifiers are
 // ignored.
 func WithEgressModifier(modifier wrp.Modifier, cancel ...*func()) ServerOption {
-	return serverOptionFunc(func(c *Server) {
-		cancelFn := c.egress.Add(modifier)
+	return serverOptionFunc(func(srv *Server) {
+		cancelFn := srv.egress.Add(modifier)
 		for i := range cancel {
 			if cancel[i] != nil {
 				*cancel[i] = cancelFn
@@ -85,13 +87,37 @@ func WithEgressModifier(modifier wrp.Modifier, cancel ...*func()) ServerOption {
 //-----------------------------------------------------------------------------
 
 func createReceiver() ServerOption {
-	return errServerOptionFunc(func(c *Server) error {
-		r, err := receiver.New(c.rOpts...)
+	return errServerOptionFunc(func(srv *Server) error {
+		chain := stopping.Processors{
+			wrp.ObserverAsProcessor(srv.rxObservers),
+			filters.ErrorOnUnsupportedMsgTypes(),
+			wrp.ProcessorFunc(srv.handleRegisterMsg),
+			filters.ErrorOnLocalMsgTypes(),
+			wrp.ProcessorFunc(srv.egressWRP),
+		}
+
+		opts := append(srv.rOpts,
+			receiver.WithModifyWRP(wrp.ProcessorAsModifier(chain)),
+		)
+
+		r, err := receiver.New(opts...)
 		if err != nil {
 			return err
 		}
 
-		c.r = r
+		srv.r = r
+		return nil
+	})
+}
+
+func createIngressChain() ServerOption {
+	return errServerOptionFunc(func(srv *Server) error {
+		srv.ingressChain = stopping.Processors{
+			filters.ErrorOnUnsupportedMsgTypes(),
+			filters.ErrorOnLocalMsgTypes(),
+			wrp.ObserverAsProcessor(srv.txObservers),
+			&srv.senders,
+		}
 		return nil
 	})
 }
