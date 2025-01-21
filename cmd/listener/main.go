@@ -29,7 +29,11 @@ func mainE() error {
 		return err
 	}
 
-	_ = server.Start()
+	fmt.Println("Starting server...")
+	err = server.Start()
+	if err != nil {
+		return err
+	}
 	defer server.Stop()
 
 	// wait forever
