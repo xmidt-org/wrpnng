@@ -3,7 +3,7 @@ module github.com/xmidt-org/wrpnng
 go 1.23.1
 
 require (
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	github.com/xmidt-org/eventor v1.0.23
 	github.com/xmidt-org/wrp-go/v3 v3.7.0
 	go.nanomsg.org/mangos/v3 v3.4.2
