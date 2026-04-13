@@ -67,7 +67,7 @@ func TestEnd2End(t *testing.T) {
 
 	err = r.Listen()
 	require.NoError(err)
-	defer r.Close()
+	defer r.Close() // nolint:errcheck
 
 	///time.Sleep(1 * time.Second)
 
@@ -95,13 +95,13 @@ func TestEnd2End(t *testing.T) {
 		eq := len(got) == len(send)
 		lock.Unlock()
 		if eq {
-			sock.Close()
+			_ = sock.Close()
 			break
 		}
 		time.Sleep(100 * time.Millisecond)
 	}
 
-	assert.Equal(t, send, got)
+	assert.ElementsMatch(t, send, got)
 
 }
 

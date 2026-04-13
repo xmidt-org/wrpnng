@@ -20,7 +20,7 @@ func TestErrorOnUnsupportedMsgTypes(t *testing.T) {
 	}{
 		{
 			name:        "Unsupported Message Type",
-			messageType: wrp.MessageType(wrp.LastMessageType + 1),
+			messageType: wrp.LastMessageType + 1,
 			expectedErr: ErrUnsupported,
 		},
 		{
@@ -46,7 +46,7 @@ func TestErrorOnUnsupportedMsgTypes(t *testing.T) {
 			msg := wrp.Message{Type: tt.messageType}
 			err := processor(context.Background(), msg)
 
-			if tt.expectedErr == ErrUnsupported {
+			if errors.Is(tt.expectedErr, ErrUnsupported) {
 				assert.True(t, errors.Is(err, ErrUnsupported))
 			} else {
 				assert.Equal(t, tt.expectedErr, err)

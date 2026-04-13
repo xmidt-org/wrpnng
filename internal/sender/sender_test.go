@@ -84,7 +84,7 @@ func TestNewDial(t *testing.T) {
 			if tt.addValidURL {
 				err = ml.Listen()
 				assert.NoError(t, err)
-				defer ml.Close()
+				defer ml.Close() // nolint:errcheck
 			}
 
 			// Multiple calls to Dial should be fine.

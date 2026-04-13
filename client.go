@@ -35,7 +35,7 @@ type Client struct {
 func NewClient(opts ...ClientOption) (*Client, error) {
 	var client Client
 
-	defaults := []ClientOption{}
+	defaults := []ClientOption{} // nolint:prealloc
 
 	vadors := []ClientOption{
 		determineClientURL(),
@@ -76,7 +76,7 @@ func findOpenURL() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer listener.Close()
+	defer listener.Close() // nolint:errcheck
 
 	addr := listener.Addr().(*net.TCPAddr)
 	return fmt.Sprintf("tcp://127.0.0.1:%d", addr.Port), nil

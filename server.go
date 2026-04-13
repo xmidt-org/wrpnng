@@ -57,7 +57,7 @@ var _ wrp.Processor = (*Server)(nil)
 func NewServer(opts ...ServerOption) (*Server, error) {
 	var srv Server
 
-	defaults := []ServerOption{
+	defaults := []ServerOption{ // nolint:prealloc
 		WithHeartbeatInterval(30 * time.Second),
 	}
 

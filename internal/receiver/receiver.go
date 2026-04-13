@@ -106,7 +106,7 @@ func newSocket(url string, timeout time.Duration) (mangos.Socket, error) {
 func (r *Receiver) wrapper(ctx context.Context, sock mangos.Socket) {
 	err := r.receive(ctx, sock)
 
-	r.Close()
+	_ = r.Close()
 
 	r.onFailure.Visit(func(f func(error)) {
 		f(err)
