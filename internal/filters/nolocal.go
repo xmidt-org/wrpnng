@@ -24,6 +24,7 @@ func ErrorOnLocalMsgTypes() wrp.ProcessorFunc {
 			wrp.ServiceRegistrationMessageType,
 			wrp.ServiceAliveMessageType:
 			return ErrLocalDisallowed
+		default:
 		}
 		return wrp.ErrNotHandled
 	}

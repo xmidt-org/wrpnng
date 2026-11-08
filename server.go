@@ -6,6 +6,7 @@ package wrpnng
 import (
 	"context"
 	"errors"
+	"slices"
 	"sync"
 	"time"
 
@@ -57,7 +58,7 @@ var _ wrp.Processor = (*Server)(nil)
 func NewServer(opts ...ServerOption) (*Server, error) {
 	var srv Server
 
-	defaults := []ServerOption{ // nolint:prealloc
+	defaults := []ServerOption{ //nolint:prealloc // appended once below, order matters
 		WithHeartbeatInterval(30 * time.Second),
 	}
 
@@ -131,7 +132,7 @@ func (srv *Server) handleRegisterMsg(_ context.Context, msg wrp.Message) error {
 		return errInvalidMsg
 	}
 
-	opts := append(srv.sOpts, sender.WithURL(msg.URL))
+	opts := slices.Concat(srv.sOpts, []sender.Option{sender.WithURL(msg.URL)})
 	return srv.senders.Upsert(msg.ServiceName, opts)
 }
 

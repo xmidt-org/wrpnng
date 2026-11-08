@@ -47,7 +47,7 @@ func TestErrorOnUnsupportedMsgTypes(t *testing.T) {
 			err := processor(context.Background(), msg)
 
 			if errors.Is(tt.expectedErr, ErrUnsupported) {
-				assert.True(t, errors.Is(err, ErrUnsupported))
+				assert.ErrorIs(t, err, ErrUnsupported)
 			} else {
 				assert.Equal(t, tt.expectedErr, err)
 			}

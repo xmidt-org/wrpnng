@@ -34,7 +34,7 @@ func mainE() error {
 	if err != nil {
 		return err
 	}
-	defer server.Stop() // nolint:errcheck
+	defer server.Stop() //nolint:errcheck // best effort stop
 
 	// wait forever
 	select {}

@@ -4,6 +4,7 @@
 package wrpnng
 
 import (
+	"slices"
 	"time"
 
 	"github.com/xmidt-org/wrp-go/v3"
@@ -96,9 +97,9 @@ func createReceiver() ServerOption {
 			wrp.ProcessorFunc(srv.egressWRP),
 		}
 
-		opts := append(srv.rOpts,
+		opts := slices.Concat(srv.rOpts, []receiver.Option{
 			receiver.WithModifyWRP(wrp.ProcessorAsModifier(chain)),
-		)
+		})
 
 		r, err := receiver.New(opts...)
 		if err != nil {

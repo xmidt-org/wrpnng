@@ -67,7 +67,7 @@ func TestEnd2End(t *testing.T) {
 
 	err = r.Listen()
 	require.NoError(err)
-	defer r.Close() // nolint:errcheck
+	defer r.Close() //nolint:errcheck // best effort close
 
 	///time.Sleep(1 * time.Second)
 
@@ -107,7 +107,7 @@ func TestEnd2End(t *testing.T) {
 
 // findOpenPort finds an open port for listening on.
 func findOpenPort() (int, error) {
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		return 0, err
 	}

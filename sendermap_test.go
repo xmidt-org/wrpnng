@@ -112,9 +112,9 @@ func TestSenderMap_ProcessWRP(t *testing.T) {
 
 			err := sm.ProcessWRP(context.Background(), tt.msg)
 			if tt.expectedErr != nil {
-				assert.ErrorIs(t, err, tt.expectedErr)
+				require.ErrorIs(t, err, tt.expectedErr)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 
 			if tt.expect != nil {
@@ -128,7 +128,7 @@ func TestSenderMap_ProcessWRP(t *testing.T) {
 }
 
 func TestSenderMap_upsert(t *testing.T) {
-	factory := func(opts ...sender.Option) (limitedSender, error) {
+	factory := func(_ ...sender.Option) (limitedSender, error) {
 		return &mockSender{}, nil
 	}
 
@@ -152,14 +152,14 @@ func TestSenderMap_upsert(t *testing.T) {
 		}, {
 			name:       "Cause the factory to fail",
 			upsertName: "service_1",
-			factory: func(opts ...sender.Option) (limitedSender, error) {
+			factory: func(_ ...sender.Option) (limitedSender, error) {
 				return nil, errors.New("factory error")
 			},
 			expectError: true,
 		}, {
 			name:       "using a faulty dialer",
 			upsertName: "service_1",
-			factory: func(opts ...sender.Option) (limitedSender, error) {
+			factory: func(_ ...sender.Option) (limitedSender, error) {
 				return &mockSender{
 					dialErr: errors.New("dial error"),
 				}, nil
@@ -182,7 +182,7 @@ func TestSenderMap_upsert(t *testing.T) {
 			if tt.expectError {
 				assert.Error(t, err)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.NotNil(t, sm.senders[tt.upsertName])
 			}
 		})
@@ -196,7 +196,7 @@ func TestSenderMap_Remove(t *testing.T) {
 
 	sm.senders["service1"] = &mockSender{}
 	err := sm.Remove("service1")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Nil(t, sm.senders["service1"])
 }
 
@@ -209,6 +209,6 @@ func TestSenderMap_Close(t *testing.T) {
 	sm.senders["service2"] = &mockSender{}
 
 	err := sm.Close()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Nil(t, sm.senders)
 }

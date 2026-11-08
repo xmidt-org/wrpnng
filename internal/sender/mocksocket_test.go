@@ -35,35 +35,35 @@ func (m *mockSocket) RecvMsg() (*mangos.Message, error) {
 	return nil, nil
 }
 
-func (m *mockSocket) Dial(addr string) error {
+func (m *mockSocket) Dial(_ string) error {
 	return nil
 }
 
-func (m *mockSocket) DialOptions(addr string, options map[string]interface{}) error {
+func (m *mockSocket) DialOptions(_ string, _ map[string]interface{}) error {
 	return nil
 }
 
-func (m *mockSocket) NewDialer(addr string, options map[string]interface{}) (mangos.Dialer, error) {
+func (m *mockSocket) NewDialer(_ string, _ map[string]interface{}) (mangos.Dialer, error) {
 	return nil, nil
 }
 
-func (m *mockSocket) Listen(addr string) error {
+func (m *mockSocket) Listen(_ string) error {
 	return nil
 }
 
-func (m *mockSocket) ListenOptions(addr string, options map[string]interface{}) error {
+func (m *mockSocket) ListenOptions(_ string, _ map[string]interface{}) error {
 	return nil
 }
 
-func (m *mockSocket) NewListener(addr string, options map[string]interface{}) (mangos.Listener, error) {
+func (m *mockSocket) NewListener(_ string, _ map[string]interface{}) (mangos.Listener, error) {
 	return nil, nil
 }
 
-func (m *mockSocket) GetOption(name string) (interface{}, error) {
+func (m *mockSocket) GetOption(_ string) (interface{}, error) {
 	return nil, nil
 }
 
-func (m *mockSocket) SetOption(name string, value interface{}) error {
+func (m *mockSocket) SetOption(_ string, _ interface{}) error {
 	return nil
 }
 

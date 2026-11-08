@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewStart(t *testing.T) {
@@ -61,12 +62,12 @@ func TestNewStart(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r, err := New(tt.options...)
 			if tt.newErr {
-				assert.Error(t, err)
+				require.Error(t, err)
 				assert.Nil(t, r)
 				return
 			}
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, r)
 			if tt.want != nil {
 				assert.Equal(t, tt.want.url, r.url)
@@ -74,7 +75,7 @@ func TestNewStart(t *testing.T) {
 			}
 
 			// Start a 2nd time to ensure it doesn't error.
-			for i := 0; i < 2; i++ {
+			for range 2 {
 				err = r.Listen()
 				if tt.startErr {
 					assert.Error(t, err)

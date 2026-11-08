@@ -35,7 +35,7 @@ type Client struct {
 func NewClient(opts ...ClientOption) (*Client, error) {
 	var client Client
 
-	defaults := []ClientOption{} // nolint:prealloc
+	defaults := []ClientOption{} //nolint:prealloc // appended once below, order matters
 
 	vadors := []ClientOption{
 		determineClientURL(),
@@ -67,16 +67,16 @@ func (c *Client) Stop() error {
 }
 
 // ProcessWRP is called when a message should be sent to the network.
-func (c *Client) ProcessWRP(ctx context.Context, msg wrp.Message) error {
+func (c *Client) ProcessWRP(_ context.Context, _ wrp.Message) error {
 	return nil
 }
 
 func findOpenURL() (string, error) {
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		return "", err
 	}
-	defer listener.Close() // nolint:errcheck
+	defer listener.Close() //nolint:errcheck // best effort close
 
 	addr := listener.Addr().(*net.TCPAddr)
 	return fmt.Sprintf("tcp://127.0.0.1:%d", addr.Port), nil

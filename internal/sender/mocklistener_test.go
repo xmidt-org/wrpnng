@@ -4,6 +4,7 @@
 package sender
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"time"
@@ -62,11 +63,11 @@ func (m *mockListener) Close() error {
 
 // findOpenPort finds an open port for listening on.
 func findOpenPort() (string, error) {
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		return "", err
 	}
-	defer listener.Close() // nolint:errcheck
+	defer listener.Close() //nolint:errcheck // best effort close
 
 	addr := listener.Addr().(*net.TCPAddr)
 	return fmt.Sprintf("tcp://127.0.0.1:%d", addr.Port), nil

@@ -69,7 +69,7 @@ func TestNewDial(t *testing.T) {
 
 			sdr, err := New(tt.options...)
 			if tt.newErr {
-				assert.Error(t, err)
+				require.Error(t, err)
 				assert.Nil(t, sdr)
 				return
 			}
@@ -83,12 +83,12 @@ func TestNewDial(t *testing.T) {
 
 			if tt.addValidURL {
 				err = ml.Listen()
-				assert.NoError(t, err)
-				defer ml.Close() // nolint:errcheck
+				require.NoError(t, err)
+				defer ml.Close() //nolint:errcheck // best effort close
 			}
 
 			// Multiple calls to Dial should be fine.
-			for i := 0; i < 2; i++ {
+			for i := range 2 {
 				err = sdr.Dial()
 				if tt.dialErr {
 					assert.Error(t, err)
@@ -164,7 +164,7 @@ func TestEnd2End(t *testing.T) {
 		for {
 			select {
 			case <-ctx.Done():
-				require.Fail("timeout")
+				t.Error("timeout")
 				return
 			default:
 				buf, err := mc.sock.Recv()
@@ -200,7 +200,7 @@ func TestEnd2End(t *testing.T) {
 		Payload: []byte("test"),
 	})
 	require.Error(err)
-	assert.ErrorIs(err, context.Canceled)
+	require.ErrorIs(err, context.Canceled)
 
 	// Close the connection.
 	err = sdr.Close()
@@ -211,7 +211,7 @@ func TestEnd2End(t *testing.T) {
 		Payload: []byte("test"),
 	})
 	require.Error(err)
-	assert.ErrorIs(err, ErrConnClosed)
+	require.ErrorIs(err, ErrConnClosed)
 
 	assert.Equal(1, marker)
 }
