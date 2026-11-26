@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/stretchr/testify v1.12.1
-	github.com/xmidt-org/eventor v1.0.51
+	github.com/xmidt-org/eventor v1.0.52
 	github.com/xmidt-org/wrp-go/v3 v3.7.0
 	go.nanomsg.org/mangos/v3 v3.6.0
 )

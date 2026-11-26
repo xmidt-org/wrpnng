@@ -6,8 +6,8 @@ github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWD
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 github.com/ugorji/go/codec v1.2.12 h1:9LC83zGrHhuUA9l16C9AHXAqEV/2wBQ4nkvumAE65EE=
 github.com/ugorji/go/codec v1.2.12/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZgYf6w6lg=
-github.com/xmidt-org/eventor v1.0.51 h1:9hIbcsQ/dk/z2+ISOUsA7CcTWeYUoS9DAz0Sk/Ft1hw=
-github.com/xmidt-org/eventor v1.0.51/go.mod h1:7h3vQdzWfSxq1Icdg5oGAzuYL+efm20UnZIRLyimL+g=
+github.com/xmidt-org/eventor v1.0.52 h1:vSYgCfIxFwpGxsAkzbEP8kc3QaPA3ERrgwb9FvH0Z7k=
+github.com/xmidt-org/eventor v1.0.52/go.mod h1:7h3vQdzWfSxq1Icdg5oGAzuYL+efm20UnZIRLyimL+g=
 github.com/xmidt-org/wrp-go/v3 v3.7.0 h1:m9ghdq79Zzb0WjomUJ02rzFpI0RK8KTjArYpNIwx1fc=
 github.com/xmidt-org/wrp-go/v3 v3.7.0/go.mod h1:eyMj+q/7LQ4SU6Z3s6VOwuTVSh6/DJBb2soBGBFSung=
 go.nanomsg.org/mangos/v3 v3.6.0 h1:ITqOcUO4I6JcdUjtf372Mf72M+8famfc80J3Vlb24Rg=
